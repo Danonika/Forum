@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"text/template"
 
-	data "../data"
+	"github.com/Danonika/Forum/data"
 )
 
 //Restore password

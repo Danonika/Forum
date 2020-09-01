@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	data "../data"
+	"github.com/Danonika/Forum/data"
 )
 
 //Users - special struct for db
