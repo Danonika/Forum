@@ -1,0 +1,82 @@
+package main
+
+import (
+	"fmt"
+	"html/template"
+	"net/http"
+	"time"
+
+	utils "./utils"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+// Cookie - Needs for browser to set it
+type Cookie struct {
+	Name       string
+	Value      string
+	Path       string
+	Domain     string
+	Expires    time.Time
+	RawExpires string
+
+	// MaxAge=0 means no 'Max-Age' attribute specified.
+	// MaxAge<0 means delete cookie now, equivalently 'Max-Age: 0'
+	// MaxAge>0 means Max-Age attribute present and given in seconds
+	MaxAge   int
+	Secure   bool
+	HTTPOnly bool
+	Raw      string
+	Unparsed []string // Raw text of unparsed attribute-value pairs
+}
+
+// Default Request Handler
+func defaultHandler(w http.ResponseWriter, r *http.Request) {
+	tmpl, _ := template.ParseFiles("./html/login.html")
+
+	if r.URL.Path[1:] == "register.html" {
+		tmpl, _ = template.ParseFiles("./html/register.html")
+		if r.Method == "GET" {
+			tmpl.Execute(w, nil)
+		}
+	} else {
+		tmpl, _ = template.ParseFiles("./html/login.html")
+		if r.Method == "GET" {
+			tmpl.Execute(w, nil)
+		} else {
+			r.ParseForm()
+			if len(r.Form) == 3 {
+				utils.AddUser(r.Form["username"][0], r.Form["mail"][0], r.Form["psw"][0])
+			}
+			// expiration := time.Now().Add(365 * 24 * time.Hour)
+			// cookie := http.Cookie{Name: "username", Value: "astaxie", Expires: expiration}
+			// for _, cookie := range r.Cookies() {
+			// 	fmt.Println(cookie.Name)
+			// }
+			// http.SetCookie(w, &cookie)
+			tmpl.Execute(w, nil)
+		}
+	}
+}
+
+func main() {
+	mux := http.NewServeMux()
+	// handle static assets
+
+	files := http.FileServer(http.Dir("public"))
+	http.Handle("static", http.StripPrefix("static", files))
+	mapper := map[string]func(http.ResponseWriter, *http.Request){
+	
+	}
+	// fs := http.FileServer(http.Dir("css"))
+	// http.Handle("/css/", http.StripPrefix("/css/", fs))
+	// fs = http.FileServer(http.Dir("images"))
+	// http.Handle("/images/", http.StripPrefix("/images/", fs))
+	// fs = http.FileServer(http.Dir("scripts"))
+	// http.Handle("/scripts/", http.StripPrefix("/scripts/", fs))
+
+	// http.HandleFunc("/", defaultHandler)
+	// http.HandleFunc("/ajax", utils.AjaxHandler)
+	fmt.Println("Server is listening...")
+	http.ListenAndServe(":8181", nil)
+}
+
