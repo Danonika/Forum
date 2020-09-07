@@ -3,7 +3,7 @@ package router
 import (
 	"net/http"
 
-	"github.com/Danonika/Forum/data"
+	data "../data"
 )
 
 //LogOut - log out

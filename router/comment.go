@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Danonika/Forum/data"
+	data "../data"
 )
 
 //ErrorHandler - Allow us to handle errors in forum

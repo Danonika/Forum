@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"text/template"
 
-	"github.com/Danonika/Forum/data"
+	data "../data"
 )
 
 //StatsTH - struct of Thread statistic
