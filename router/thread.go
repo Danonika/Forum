@@ -3,6 +3,7 @@ package router
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"text/template"
@@ -37,7 +38,12 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
 	user, _ := data.GetUserByID(Wow.ID)
 	tmpl, _ := template.ParseFiles("./public/html/CreateThread.html")
 	if r.Method == "POST" {
-		http.Redirect(w, r, "/thread/"+strconv.Itoa(data.CreateTH(r, Wow.ID, user.Username)), 302)
+		num, err := data.CreateTH(r, Wow.ID, user.Username)
+		fmt.Println(err)
+		if err != nil {
+			ErrorHandler(w, r, err, 5)
+		}
+		http.Redirect(w, r, "/thread/"+strconv.Itoa(num), 302)
 
 	}
 	tmpl.Execute(w, Wow)
@@ -108,8 +114,8 @@ func Articles(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, Wow)
 }
 
-//Need Update After
+//DeleteThread - Need Update After
 func DeleteThread() {}
 
-//New Feature
+//EditThread - New Feature
 func EditThread() {}

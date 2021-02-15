@@ -29,9 +29,22 @@
 
     <div id="div3">
         <div id="div9">
+            <div id="profileStats">
+
+            <img src="{{.Image}}" id="profileImage">
+            <div style="margin-left: 210px;">
             <p id="p8"> User: {{.Title}}</p>
             <p id="p8"> Mail: {{.Result}}</p>
             {{$x := .Title}}
+            </div>
+            </div>
+            <div id="editImageAva">
+            <form name="upload" id="newAva" action="/updateProfileImage/{{.ID}}" enctype="multipart/form-data" method="post">
+                <input type="file" accept="image/*" name="FileImage" id="inpFile">
+                <input type="submit" value="OK" class="acceptAva"></input>
+            </form>
+            </div>
+            <script src="/static/scripts/scripts.js"></script>
             <!-- </div>
     </div>
     <div id="div8">
@@ -58,6 +71,10 @@
         </div>
     </div>
     <script>
+        console.log("{{.Me}}")
+        if("{{.Me}}" == "true"){
+            document.getElementById("editImageAva").style.display = 'block'
+        }
         $(document).ready(function() {
             $("#butlist").click(function() {
                 if ("{{.Authorised}}" == "true") {

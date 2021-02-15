@@ -465,3 +465,20 @@ body {font-family: "Lato", sans-serif;}
 .con{
   width: 10%;
 }
+#profileImage{
+    height: 200px;
+    width: 200px;
+    float: left;
+}
+#profileStats{
+    height: 200px;
+    width: 100%;
+}
+
+#inpFile{
+    width: 120px;
+    overflow:hidden;
+}
+#editImageAva{
+  display: none;
+}

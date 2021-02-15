@@ -25,6 +25,8 @@ type ViewData struct {
 	CountOfPosts         int
 	CountOfLikedThreads  int
 	CountOfLikedComments int
+	Me                   bool
+	Image                string
 }
 
 // Wow - value to template html page

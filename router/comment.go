@@ -22,6 +22,10 @@ func ErrorHandler(w http.ResponseWriter, r *http.Request, err error, status int)
 			Wow.Error = []byte("No such page")
 		case 3:
 			Wow.Error = []byte("No such user")
+		case 4:
+			Wow.Error = []byte("You don't have permission")
+		case 5:
+			Wow.Error = []byte("Internal error has been occured")
 		}
 		http.Redirect(w, r, "/error", 302)
 	}

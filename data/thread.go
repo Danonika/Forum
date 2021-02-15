@@ -3,6 +3,7 @@ package data
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -29,7 +30,7 @@ type ThreadStats struct {
 }
 
 //CreateTH - Adding Thread to Database
-func CreateTH(r *http.Request, ID int, username string) int {
+func CreateTH(r *http.Request, ID int, username string) (int, error) {
 	var CurTH Thread
 	r.ParseForm()
 	category := ""
@@ -48,7 +49,8 @@ func CreateTH(r *http.Request, ID int, username string) int {
 	Db.Exec("insert into Thread(Title, UserID, Likes, Dislikes, ToThreadID, Date, Content, Category, Username) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", r.Form["title"][0], ID, 0, 0, 0, time.Now().Format("2006-01-02 15:04"), r.Form["comment"][0], category, username)
 	Db.QueryRow("select * from Thread where ToThreadID = 0").Scan(&CurTH.Title, &CurTH.UserID, &CurTH.Likes, &CurTH.Dislikes, &CurTH.ThreadID, &CurTH.ToThreadID, &CurTH.Date, &CurTH.Content, &CurTH.Category, &CurTH.Username)
 	Db.Exec("update Thread set ToThreadID = $1 where ThreadID = $2", CurTH.ThreadID, CurTH.ThreadID)
-	return CurTH.ThreadID
+	err := AddImage("Thread"+strconv.Itoa(CurTH.ThreadID), 0, ID, r)
+	return CurTH.ThreadID, err
 }
 
 //GetThreadByID - Get Thread By ID
