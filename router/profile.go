@@ -2,7 +2,6 @@ package router
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"text/template"
@@ -51,7 +50,6 @@ func Profile(w http.ResponseWriter, r *http.Request) {
 func UpdateAva(w http.ResponseWriter, r *http.Request) {
 	Authorised(r)
 	x, err2 := strconv.Atoi(r.URL.Path[20:])
-	fmt.Println(x)
 	user, err := data.GetUserByID(x)
 	if err != nil || err2 != nil || r.Method == "GET" {
 		ErrorHandler(w, r, err, 2)

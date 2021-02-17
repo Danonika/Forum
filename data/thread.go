@@ -19,6 +19,7 @@ type Thread struct {
 	Content    string
 	Category   string
 	Username   string
+	Image      string
 	Liked      int
 }
 
@@ -32,13 +33,22 @@ type ThreadStats struct {
 //CreateTH - Adding Thread to Database
 func CreateTH(r *http.Request, ID int, username string) (int, error) {
 	var CurTH Thread
-	r.ParseForm()
+	err2 := r.ParseMultipartForm(20 << 20)
+	if err2 != nil {
+		return 0, err2
+	}
 	category := ""
-	if len(r.Form) == 2 {
+	cur := 2
+	for i := range r.Form {
+		if i == "FileImage" {
+			cur++
+		}
+	}
+	if len(r.Form) == cur {
 		category = "Oftop"
 	}
 	for i := range r.Form {
-		if i == "title" || i == "comment" {
+		if i == "title" || i == "comment" || i == "FileImage" {
 			continue
 		}
 		if category != "" {
@@ -46,17 +56,22 @@ func CreateTH(r *http.Request, ID int, username string) (int, error) {
 		}
 		category += i
 	}
-	Db.Exec("insert into Thread(Title, UserID, Likes, Dislikes, ToThreadID, Date, Content, Category, Username) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", r.Form["title"][0], ID, 0, 0, 0, time.Now().Format("2006-01-02 15:04"), r.Form["comment"][0], category, username)
-	Db.QueryRow("select * from Thread where ToThreadID = 0").Scan(&CurTH.Title, &CurTH.UserID, &CurTH.Likes, &CurTH.Dislikes, &CurTH.ThreadID, &CurTH.ToThreadID, &CurTH.Date, &CurTH.Content, &CurTH.Category, &CurTH.Username)
+	Db.Exec("insert into Thread(Title, UserID, Likes, Dislikes, ToThreadID, Date, Content, Category, Username, Image) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", r.FormValue("title"), ID, 0, 0, 0, time.Now().Format("2006-01-02 15:04"), r.FormValue("comment"), category, username, "")
+	Db.QueryRow("select * from Thread where ToThreadID = 0").Scan(&CurTH.Title, &CurTH.UserID, &CurTH.Likes, &CurTH.Dislikes, &CurTH.ThreadID, &CurTH.ToThreadID, &CurTH.Date, &CurTH.Content, &CurTH.Category, &CurTH.Username, &CurTH.Image)
 	Db.Exec("update Thread set ToThreadID = $1 where ThreadID = $2", CurTH.ThreadID, CurTH.ThreadID)
-	err := AddImage("Thread"+strconv.Itoa(CurTH.ThreadID), 0, ID, r)
+	err := AddImage("Thread"+strconv.Itoa(CurTH.ThreadID), 0, CurTH.ThreadID, r)
+	if err != nil && err.Error() == "No image" {
+		err = nil
+	} else {
+		Db.Exec("update Thread set Image = $1 where ThreadID = $2", "Thread"+strconv.Itoa(CurTH.ThreadID), CurTH.ThreadID)
+	}
 	return CurTH.ThreadID, err
 }
 
 //GetThreadByID - Get Thread By ID
 func GetThreadByID(ID int) (thread Thread, err error) {
 	thread = Thread{}
-	err = Db.QueryRow("select * from Thread where ThreadID = $1", ID).Scan(&thread.Title, &thread.UserID, &thread.Likes, &thread.Dislikes, &thread.ThreadID, &thread.ToThreadID, &thread.Date, &thread.Content, &thread.Category, &thread.Username)
+	err = Db.QueryRow("select * from Thread where ThreadID = $1", ID).Scan(&thread.Title, &thread.UserID, &thread.Likes, &thread.Dislikes, &thread.ThreadID, &thread.ToThreadID, &thread.Date, &thread.Content, &thread.Category, &thread.Username, &thread.Image)
 	if thread.Title == "" {
 		err = errors.New("It's comment")
 	}
@@ -70,7 +85,7 @@ func GetAllToThreadByID(ThreadID int, UserID int) []Thread {
 	defer rows.Close()
 	for rows.Next() {
 		cur := Thread{}
-		err := rows.Scan(&cur.Title, &cur.UserID, &cur.Likes, &cur.Dislikes, &cur.ThreadID, &cur.ToThreadID, &cur.Date, &cur.Content, &cur.Category, &cur.Username)
+		err := rows.Scan(&cur.Title, &cur.UserID, &cur.Likes, &cur.Dislikes, &cur.ThreadID, &cur.ToThreadID, &cur.Date, &cur.Content, &cur.Category, &cur.Username, &cur.Image)
 		if err != nil {
 			break
 		}
@@ -94,7 +109,7 @@ func CheckUserLikedThread(UserID int, ThreadID int) int {
 //CreateCommentToThread - Create comment to thread
 func CreateCommentToThread(r *http.Request, UserID int, ThreadID int, username string) {
 	r.ParseForm()
-	Db.Exec("insert into Thread(Title, UserID, Likes, Dislikes, ToThreadID, Date, Content, Category, Username) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", "", UserID, 0, 0, ThreadID, time.Now().Format("2006-01-02 15:04"), r.Form["comment"][0], "", username)
+	Db.Exec("insert into Thread(Title, UserID, Likes, Dislikes, ToThreadID, Date, Content, Category, Username, Image) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", "", UserID, 0, 0, ThreadID, time.Now().Format("2006-01-02 15:04"), r.Form["comment"][0], "", username, "")
 }
 
 //UpdateThreadStats - Updates thread statistic
@@ -145,7 +160,7 @@ func GetAllUserCreatedPosts(UserID int) []Thread {
 	defer rows.Close()
 	for rows.Next() {
 		cur := Thread{}
-		err := rows.Scan(&cur.Title, &cur.UserID, &cur.Likes, &cur.Dislikes, &cur.ThreadID, &cur.ToThreadID, &cur.Date, &cur.Content, &cur.Category, &cur.Username)
+		err := rows.Scan(&cur.Title, &cur.UserID, &cur.Likes, &cur.Dislikes, &cur.ThreadID, &cur.ToThreadID, &cur.Date, &cur.Content, &cur.Category, &cur.Username, &cur.Image)
 		if err != nil {
 			break
 		}
@@ -163,7 +178,7 @@ func GetAllUserLikedThread(UserID int) []Thread {
 	defer rows.Close()
 	for rows.Next() {
 		cur := Thread{}
-		err := rows.Scan(&cur.Title, &cur.UserID, &cur.Likes, &cur.Dislikes, &cur.ThreadID, &cur.ToThreadID, &cur.Date, &cur.Content, &cur.Category, &cur.Username)
+		err := rows.Scan(&cur.Title, &cur.UserID, &cur.Likes, &cur.Dislikes, &cur.ThreadID, &cur.ToThreadID, &cur.Date, &cur.Content, &cur.Category, &cur.Username, &cur.Image)
 		cur.Liked = CheckUserLikedThread(UserID, cur.ThreadID)
 		if err != nil {
 			break
@@ -182,7 +197,7 @@ func GetAllUserLikedComments(UserID int) []Thread {
 	defer rows.Close()
 	for rows.Next() {
 		cur := Thread{}
-		err := rows.Scan(&cur.Title, &cur.UserID, &cur.Likes, &cur.Dislikes, &cur.ThreadID, &cur.ToThreadID, &cur.Date, &cur.Content, &cur.Category, &cur.Username)
+		err := rows.Scan(&cur.Title, &cur.UserID, &cur.Likes, &cur.Dislikes, &cur.ThreadID, &cur.ToThreadID, &cur.Date, &cur.Content, &cur.Category, &cur.Username, &cur.Image)
 		cur.Liked = CheckUserLikedThread(UserID, cur.ThreadID)
 		if err != nil {
 			break
@@ -201,7 +216,7 @@ func GetAll(UserID int) []Thread {
 	defer rows.Close()
 	for rows.Next() {
 		cur := Thread{}
-		err := rows.Scan(&cur.Title, &cur.UserID, &cur.Likes, &cur.Dislikes, &cur.ThreadID, &cur.ToThreadID, &cur.Date, &cur.Content, &cur.Category, &cur.Username)
+		err := rows.Scan(&cur.Title, &cur.UserID, &cur.Likes, &cur.Dislikes, &cur.ThreadID, &cur.ToThreadID, &cur.Date, &cur.Content, &cur.Category, &cur.Username, &cur.Image)
 		if err != nil {
 			break
 		}

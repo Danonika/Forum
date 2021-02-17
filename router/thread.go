@@ -3,7 +3,6 @@ package router
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"text/template"
@@ -39,7 +38,6 @@ func CreateThread(w http.ResponseWriter, r *http.Request) {
 	tmpl, _ := template.ParseFiles("./public/html/CreateThread.html")
 	if r.Method == "POST" {
 		num, err := data.CreateTH(r, Wow.ID, user.Username)
-		fmt.Println(err)
 		if err != nil {
 			ErrorHandler(w, r, err, 5)
 		}
@@ -69,6 +67,10 @@ func Post(w http.ResponseWriter, r *http.Request) {
 			Wow.Result = user.Username
 			Wow.Time = CurThread.Date
 			Wow.Data = data.GetAllToThreadByID(CurThread.ThreadID, Wow.ID)
+			Wow.Image = "Thread" + strconv.Itoa(CurThread.ThreadID)
+			if data.FindImage(Wow.Image) != nil {
+				Wow.Image = ""
+			}
 			tmpl.Execute(w, Wow)
 			Reset(&Wow)
 		}

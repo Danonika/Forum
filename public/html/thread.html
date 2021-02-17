@@ -37,16 +37,27 @@
     <div id="{{.ThreadID}}">
         <div id="div8">
             <div id="div9">
-                <a href="/id/{{.UserID}}" style="text-decoration:none" id="a2">{{.Username}}</a> {{if (eq $i 0)}}
+                <a href="/id/{{.UserID}}" style="text-decoration:none" id="a2">{{.Username}}</a> 
+                {{if (eq $i 0)}}
                 <o id="p6" style="margin-left:2px;box-sizing: border-box;border: 2px solid #ccc;border-radius: 30px;;color:rgb(223, 178, 56)"> Thread Starter </o>
                 {{else}}
                 <o id="p6"> #{{.ThreadID}}</o>
                 {{end}}
                 <o id="p9">{{.Date}}</o>
                 <br>
+                {{if .Image}}
+                <img src="/static/images/Thread{{.ThreadID}}" style="width: 100%;">
+
                 <pre id="p6">{{.Content}}</pre>
                 <i class="fa fa-thumbs-up" id="{{.ThreadID}}1">{{.Likes}}</i>
                 <i class="fa fa-thumbs-down" id="{{.ThreadID}}2">{{.Dislikes}}</i>
+                {{else}}
+                <pre id="p6">{{.Content}}</pre>
+                <i class="fa fa-thumbs-up" id="{{.ThreadID}}1">{{.Likes}}</i>
+                <i class="fa fa-thumbs-down" id="{{.ThreadID}}2">{{.Dislikes}}</i>
+                {{end}}
+                
+                
             </div>
         </div>
     </div>
@@ -145,6 +156,14 @@
         </div>
     </div>
     <script>
+        $("#comment2").keypress(function (e) {
+
+        if(e.which === 13 && !e.shiftKey && $("#comment2").val().trim().lenght > 0) {
+            e.preventDefault();
+            $(this).closest("form").submit();
+            }
+        });
+
         if ("{{.Authorised}}" == "true") {
             $('#a6').show()
             $('#a4').show()

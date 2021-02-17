@@ -18,6 +18,9 @@ type Image struct {
 //AddImage - Adding Image to database and to localfiles
 func AddImage(name string, IsUser int, ID int, r *http.Request) error {
 	file, fileheader, err := r.FormFile("FileImage")
+	if fileheader == nil || file == nil {
+		return errors.New("No image")
+	}
 	if err != nil {
 		return err
 	}
