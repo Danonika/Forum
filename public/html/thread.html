@@ -158,7 +158,7 @@
     <script>
         $("#comment2").keypress(function (e) {
 
-        if(e.which === 13 && !e.shiftKey && $("#comment2").val().trim().lenght > 0) {
+        if(e.which === 13 && !e.shiftKey && $("#comment2").val().trim().length > 0) {
             e.preventDefault();
             $(this).closest("form").submit();
             }

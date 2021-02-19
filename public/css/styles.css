@@ -464,6 +464,7 @@ body {font-family: "Lato", sans-serif;}
 }
 .con{
   width: 10%;
+<<<<<<< HEAD
 }
 #profileImage{
     height: 200px;
@@ -481,4 +482,6 @@ body {font-family: "Lato", sans-serif;}
 }
 #editImageAva{
   display: none;
+=======
+>>>>>>> 99d605ac4882d7f5d200aa5e984bc8096b10e6de
 }

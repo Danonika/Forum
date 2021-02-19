@@ -53,6 +53,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	tmpl, _ := template.ParseFiles("./public/html/thread.html")
 	if r.Method == "POST" {
 		Comment(w, r)
+		http.Redirect(w, r, r.URL.Path, 302)
 	}
 	x, err := strconv.Atoi(r.URL.Path[8:])
 	if err != nil {
