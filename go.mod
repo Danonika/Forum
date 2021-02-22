@@ -1,10 +1,9 @@
-module github.com/danonika/Forum
+module github.com/Danonika/Forum
 
-go 1.15
+go 1.13
 
 require (
-	github.com/mattn/go-sqlite3 v1.14.5
-
-	github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b
-	golang.org/x/crypto v0.0.0-20201124201722-c8d3bf9c5392
+	github.com/mattn/go-sqlite3 v2.0.3+incompatible
+	github.com/satori/uuid v1.2.0
+	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
 )

@@ -63,7 +63,7 @@ func GetUserByID(ID int) (user User, err error) {
 
 //CreateAndSetSession - Method for user
 func (user *User) CreateAndSetSession(w http.ResponseWriter, r *http.Request) (err error) {
-	u2, _ := uuid.NewV4()
+	u2 := uuid.NewV4()
 	hour := time.Duration(24)
 	if r.Form["checkbox"] != nil {
 		hour *= 30
