@@ -7,7 +7,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	utils "../utils"
+	utils "github.com/Danonika/Forum/utils"
 	data "github.com/Danonika/Forum/data"
 )
 
