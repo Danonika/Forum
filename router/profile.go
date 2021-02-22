@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"text/template"
 
-	data "../data"
+	data "github.com/Danonika/Forum/data"
 )
 
 //Profile - Profile page of user

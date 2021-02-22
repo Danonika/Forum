@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"./data"
-	"./router"
+	"github.com/Danonika/Forum/data"
+	"github.com/Danonika/Forum/router"
 	_ "github.com/mattn/go-sqlite3"
 )
 
